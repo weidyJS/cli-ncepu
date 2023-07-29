@@ -16,6 +16,12 @@ const ADD_TEMPLATE = [
     value: 'template-react18',
     npmName: '@ncepu/template-react18',
     version: '1.0.0'
+  },
+  {
+    name: 'vue-element-admin项目模板',
+    value: 'template-vue-element-admin',
+    npmName: '@ncepu/template-vue-element-admin',
+    version: '1.0.0'
   }
 ]
 const ADD_TYPE = [
