@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { homedir } from 'node:os';
-import { log, makeList, makeInput, getLastVersion } from '@ncepu/utils'
+import { log, makeList, makeInput, getLatestVersion, request, printErrorLog } from '@ncepu/utils'
 
 const ADD_TYPE_PROJECT = 'project'
 const ADD_TYPE_PAGE = 'page'
@@ -60,9 +60,9 @@ function getAddName() {
 }
 
 // 选择项目模板
-function getAddTemplate() {
+function getAddTemplate(choices) {
   return makeList({
-    choices: ADD_TEMPLATE,
+    choices: ADD_TEMPLATE || choices,
     message: '请选择项目模板',
   })
 }
@@ -72,11 +72,30 @@ function makeTargetPath() {
   return path.resolve(`${homedir()}/${TEMP_HOME}`, 'addTemplate')
 }
 
+// 通过API获取项目模板
+async function getTemplateFromAPI() {
+  try {
+    const data = await request({
+      url: '/v1/project',
+      method: 'get',
+    });
+    log.verbose('template', data);
+    return data;
+  } catch (e) {
+    printErrorLog(e);
+    return null;
+  }
+}
+
 export default async function createTemplate(name, opts) {
+  // const ADD_TEMPLATE = await getTemplateFromAPI();
+  // if (!ADD_TEMPLATE) {
+  //   throw new Error('项目模板不存在！');
+  // }
   const { type = null, template = null } = opts;
   let addType; // 创建项目类型
   let addName; // 项目名称
-  let selectTedTemplate; // 项目模板
+  let selectedTemplate; // 项目模板
   if (type) {
     addType = type;
   } else {
@@ -91,24 +110,24 @@ export default async function createTemplate(name, opts) {
     }
     log.verbose('addName', addName);
     if (template) {
-      selectTedTemplate = ADD_TEMPLATE.find(tp => tp.value === template);
-      if (!selectTedTemplate) {
-        throw new Error('项目模板不存在')
+      selectedTemplate = ADD_TEMPLATE.find(tp => tp.value === template);
+      if (!selectedTemplate) {
+        throw new Error(`项目模板 ${template} 不存在！`)
       }
     } else {
-      const addTemplate = await getAddTemplate();
-      selectTedTemplate = ADD_TEMPLATE.find(template => template.value === addTemplate);
+      const addTemplate = await getAddTemplate(ADD_TEMPLATE); // 传参只为了测试 动态获取 模板的情况，可不传参
+      selectedTemplate = ADD_TEMPLATE.find(template => template.value === addTemplate);
       log.verbose('addTemplate', addTemplate);
     }
     //获取最新版本号
-    const latestVersion = await getLastVersion(selectTedTemplate.npmName);
+    const latestVersion = await getLatestVersion(selectedTemplate.npmName);
     log.verbose('latestVersion', latestVersion);
-    selectTedTemplate.version = latestVersion;
+    selectedTemplate.version = latestVersion;
     const targetPath = makeTargetPath();
     return {
       type: addType,
       name: addName,
-      template: selectTedTemplate,
+      template: selectedTemplate,
       targetPath
     }
   } else {

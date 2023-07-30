@@ -16,7 +16,7 @@ function getNpmInfo(npmName) {
   });
 }
 
-export function getLastVersion(npmName) {
+export function getLatestVersion(npmName) {
   return getNpmInfo(npmName).then(data => {
     if (!data['dist-tags'] || !data['dist-tags'].latest) {
       log.error('没有 latest 版本号');

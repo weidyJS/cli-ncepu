@@ -1,7 +1,8 @@
 import log from './log.js';
 import isDebug from './isDebug.js';
 import { makeList, makeInput } from './inquirer.js';
-import { getLastVersion } from './npm.js';
+import { getLatestVersion } from './npm.js';
+import request from './request.js';
 
 export function printErrorLog(e, type) {
   if (isDebug()) { 
@@ -16,5 +17,6 @@ export {
   isDebug,
   makeList,
   makeInput,
-  getLastVersion
+  getLatestVersion,
+  request
 }
