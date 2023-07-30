@@ -9,19 +9,22 @@ const ADD_TEMPLATE = [
     name: 'vue3项目模板',
     value: 'template-vue3',
     npmName: '@ncepu/template-vue3',
-    version: '1.0.1'
+    version: '1.0.1',
+    team: '移动端团队'
   },
   {
     name: 'react项目模板',
     value: 'template-react18',
     npmName: '@ncepu/template-react18',
-    version: '1.0.0'
+    version: '1.0.0',
+    team: 'PC端团队'
   },
   {
     name: 'vue-element-admin项目模板',
     value: 'template-vue-element-admin',
     npmName: '@ncepu/template-vue-element-admin',
-    version: '1.0.0'
+    version: '1.0.0',
+    team: 'PC端团队'
   }
 ]
 const ADD_TYPE = [
@@ -62,8 +65,16 @@ function getAddName() {
 // 选择项目模板
 function getAddTemplate(choices) {
   return makeList({
-    choices: ADD_TEMPLATE || choices,
+    choices: choices || ADD_TEMPLATE,
     message: '请选择项目模板',
+  })
+}
+
+// 选择所在团队
+function getAddTeam(team) {
+  return makeList({
+    choices: team.map(item => ({ name: item, value: item })),
+    message: '请选择团队',
   })
 }
 
@@ -115,7 +126,12 @@ export default async function createTemplate(name, opts) {
         throw new Error(`项目模板 ${template} 不存在！`)
       }
     } else {
-      const addTemplate = await getAddTemplate(ADD_TEMPLATE); // 传参只为了测试 动态获取 模板的情况，可不传参
+      // 获取团队信息
+      let teamList = ADD_TEMPLATE.map(_ => _.team);
+      teamList = [...new Set(teamList)];
+      const addTeam = await getAddTeam(teamList);
+      log.verbose('addTeam', addTeam);
+      const addTemplate = await getAddTemplate(ADD_TEMPLATE.filter(_ => _.team === addTeam));
       selectedTemplate = ADD_TEMPLATE.find(template => template.value === addTemplate);
       log.verbose('addTemplate', addTemplate);
     }
